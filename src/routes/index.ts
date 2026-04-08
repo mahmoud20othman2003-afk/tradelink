@@ -23,6 +23,16 @@ import { offerRouter } from "./offerRoutes";
 import { otpRouter } from "./otpRoutes";
 import { locationRouter } from "./locationRoutes";
 import { reviewRouter } from "./reviewRoutes";
+import { adminRouter } from "./adminRoutes";
+import { disputeRouter } from "./disputeRoutes";
+import { kycRouter } from "./kycRoutes";
+import { commissionRouter } from "./commissionRoutes";
+import { flashSaleRouter } from "./flashSaleRoutes";
+import { tieredPriceRouter } from "./tieredPriceRoutes";
+import { couponRouter } from "./couponRoutes";
+import { wishlistRouter } from "./wishlistRoutes";
+import { followRouter } from "./followRoutes";
+import { lowStockRouter } from "./lowStockRoutes";
 
 import * as userController from "../controllers/userController";
 import * as productController from "../controllers/productController";
@@ -54,6 +64,16 @@ apiRouter.use("/offers", offerRouter);
 apiRouter.use("/otp", otpRouter);
 apiRouter.use("/locations", locationRouter);
 apiRouter.use("/reviews", reviewRouter);
+apiRouter.use("/admin", adminRouter);
+apiRouter.use("/disputes", disputeRouter);
+apiRouter.use("/kyc", kycRouter);
+apiRouter.use("/commissions", commissionRouter);
+apiRouter.use("/flash-sales", flashSaleRouter);
+apiRouter.use("/tiered-prices", tieredPriceRouter);
+apiRouter.use("/coupons", couponRouter);
+apiRouter.use("/wishlist", wishlistRouter);
+apiRouter.use("/follow", followRouter);
+apiRouter.use("/low-stock", lowStockRouter);
 
 // Dashboard & Unique Utility Routes
 apiRouter.get("/user-data", requireAuth, userController.getCurrentUserData);

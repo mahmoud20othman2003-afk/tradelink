@@ -17,6 +17,15 @@ import { CartItem } from "./CartItem";
 import { Offer } from "./Offer";
 import { Review } from "./Review";
 import { ShippingZone } from "./ShippingZone";
+import { Dispute } from "./Dispute";
+import { KycDocument } from "./KycDocument";
+import { CategoryCommission } from "./CategoryCommission";
+import { AuditLog } from "./AuditLog";
+import { TieredPrice } from "./TieredPrice";
+import { FlashSale } from "./FlashSale";
+import { Coupon } from "./Coupon";
+import { Wishlist } from "./Wishlist";
+import { FollowSupplier } from "./FollowSupplier";
 
 export function initModels() {
   // users & roles
@@ -99,5 +108,45 @@ export function initModels() {
 
   // ShippingZone has no associations (standalone lookup table)
   void ShippingZone;
+
+  // disputes
+  Dispute.belongsTo(User, { foreignKey: "opened_by", as: "opener" });
+  Dispute.belongsTo(User, { foreignKey: "against_user", as: "target" });
+  Dispute.belongsTo(User, { foreignKey: "resolved_by", as: "resolver" });
+  Dispute.belongsTo(Order, { foreignKey: "order_id", as: "order" });
+  User.hasMany(Dispute, { foreignKey: "opened_by", as: "openedDisputes" });
+
+  // KYC documents
+  KycDocument.belongsTo(User, { foreignKey: "user_id", as: "user" });
+  User.hasMany(KycDocument, { foreignKey: "user_id", as: "kycDocuments" });
+
+  // category commissions
+  CategoryCommission.belongsTo(Category, { foreignKey: "category_id", as: "category" });
+  Category.hasOne(CategoryCommission, { foreignKey: "category_id", as: "commission" });
+
+  // audit logs
+  AuditLog.belongsTo(User, { foreignKey: "user_id", as: "user" });
+
+  // tiered prices
+  TieredPrice.belongsTo(Product, { foreignKey: "product_id", as: "product" });
+  Product.hasMany(TieredPrice, { foreignKey: "product_id", as: "tieredPrices" });
+
+  // flash sales
+  FlashSale.belongsTo(Product, { foreignKey: "product_id", as: "product" });
+  Product.hasMany(FlashSale, { foreignKey: "product_id", as: "flashSales" });
+  FlashSale.belongsTo(User, { foreignKey: "created_by", as: "creator" });
+
+  // coupons
+  Coupon.belongsTo(User, { foreignKey: "created_by", as: "creator" });
+
+  // wishlists
+  Wishlist.belongsTo(User, { foreignKey: "user_id", as: "user" });
+  Wishlist.belongsTo(Product, { foreignKey: "product_id", as: "product" });
+  User.hasMany(Wishlist, { foreignKey: "user_id", as: "wishlists" });
+
+  // follow suppliers
+  FollowSupplier.belongsTo(User, { foreignKey: "follower_id", as: "follower" });
+  FollowSupplier.belongsTo(User, { foreignKey: "supplier_id", as: "supplier" });
+  User.hasMany(FollowSupplier, { foreignKey: "follower_id", as: "following" });
 }
 

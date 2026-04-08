@@ -24,6 +24,24 @@ import { FlashSale } from "./models/FlashSale";
 import { Coupon } from "./models/Coupon";
 import { Wishlist } from "./models/Wishlist";
 import { FollowSupplier } from "./models/FollowSupplier";
+import { Rfq } from "./models/Rfq";
+import { RfqQuote } from "./models/RfqQuote";
+import { ProductBundle } from "./models/ProductBundle";
+import { BundleItem } from "./models/BundleItem";
+import { PreOrder } from "./models/PreOrder";
+import { SampleRequest } from "./models/SampleRequest";
+import { SupplierMov } from "./models/SupplierMov";
+import { TaxConfig } from "./models/TaxConfig";
+import { UnitConversion } from "./models/UnitConversion";
+import { LotTracking } from "./models/LotTracking";
+import { SubscriptionPlan } from "./models/SubscriptionPlan";
+import { LoyaltyPoint } from "./models/LoyaltyPoint";
+import { Referral } from "./models/Referral";
+import { Badge } from "./models/Badge";
+import { UserBadge } from "./models/UserBadge";
+import { Rma } from "./models/Rma";
+import { BackOrder } from "./models/BackOrder";
+import { VacationMode } from "./models/VacationMode";
 import { initModels } from "./models/initModels";
 
 async function seed() {
@@ -472,6 +490,164 @@ async function seed() {
             { user_id: admin.id, action: "approve_kyc", entity_type: "kyc_document", entity_id: 1, details: "Approved supplier commercial register", ip_address: "127.0.0.1" }
         ]);
         console.log("Audit Logs seeded.");
+
+        // ── RFQ System ──
+        const rfq1 = await Rfq.create({
+            buyer_id: wholesaler.id, product_id: products[0].id, product_name: "Premium Egyptian Rice",
+            quantity: 500, unit: "kg", description: "نحتاج 500 كيلو أرز مصري فاخر لمتجرنا", target_price: 22.00
+        });
+        const rfq2 = await Rfq.create({
+            buyer_id: retailer.id, product_name: "Custom T-Shirt Print",
+            quantity: 200, unit: "piece", description: "طباعة تيشيرتات بتصميم مخصوص"
+        });
+        await RfqQuote.create({
+            rfq_id: rfq1.id, supplier_id: supplier.id, unit_price: 21.50, total_price: 10750,
+            notes: "سعر خاص للكمية الكبيرة", valid_until: futureDate
+        });
+        console.log("RFQ System seeded.");
+
+        // ── Product Bundles ──
+        const bundle = await ProductBundle.create({
+            name: "حزمة المطبخ المتكاملة", description: "أرز + زيت + سكر بسعر مخفض",
+            supplier_id: supplier.id, bundle_price: 350, original_total: 420
+        });
+        await BundleItem.bulkCreate([
+            { bundle_id: bundle.id, product_id: products[0].id, quantity: 5 },
+            { bundle_id: bundle.id, product_id: products[1].id, quantity: 2 }
+        ]);
+        console.log("Product Bundles seeded.");
+
+        // ── Pre-Orders ──
+        const preOrderDate = new Date();
+        preOrderDate.setDate(preOrderDate.getDate() + 14);
+        await PreOrder.create({
+            buyer_id: wholesaler.id, product_id: products[2].id, quantity: 10,
+            deposit_amount: 21250, total_amount: 85000, expected_date: preOrderDate,
+            notes: "حجز موبايلات الشحنة القادمة"
+        });
+        console.log("Pre-Orders seeded.");
+
+        // ── Sample Requests ──
+        await SampleRequest.create({
+            buyer_id: retailer.id, product_id: products[3].id, supplier_id: supplier.id,
+            quantity: 2, sample_type: "free", cost: 0, shipping_address: "الجيزة، شارع الهرم",
+            notes: "نريد تقييم الجودة قبل الطلب بالجملة"
+        });
+        console.log("Sample Requests seeded.");
+
+        // ── Supplier MOV ──
+        await SupplierMov.create({
+            supplier_id: supplier.id, min_order_value: 500, currency: "EGP",
+            message: "الحد الأدنى للطلب 500 جنيه مصري"
+        });
+        console.log("Supplier MOV seeded.");
+
+        // ── Tax Configs ──
+        await TaxConfig.bulkCreate([
+            { name: "ضريبة القيمة المضافة (عام)", rate: 14, is_inclusive: false, updated_by: admin.id },
+            { category_id: categories[0].id, name: "ضريبة المواد الغذائية", rate: 0, is_inclusive: false, updated_by: admin.id },
+            { category_id: categories[5].id, name: "ضريبة الإلكترونيات", rate: 14, is_inclusive: false, updated_by: admin.id }
+        ]);
+        console.log("Tax Configs seeded.");
+
+        // ── Unit Conversions ──
+        await UnitConversion.bulkCreate([
+            { from_unit: "kg", to_unit: "ton", factor: 0.001, category: "weight" },
+            { from_unit: "kg", to_unit: "gram", factor: 1000, category: "weight" },
+            { from_unit: "piece", to_unit: "dozen", factor: 0.083333, category: "count" },
+            { from_unit: "piece", to_unit: "carton", factor: 0.04, category: "count" },
+            { from_unit: "meter", to_unit: "cm", factor: 100, category: "length" },
+            { from_unit: "liter", to_unit: "ml", factor: 1000, category: "volume" }
+        ]);
+        console.log("Unit Conversions seeded.");
+
+        // ── Lot Tracking ──
+        await LotTracking.bulkCreate([
+            {
+                product_id: products[0].id, lot_number: "LOT-RICE-001-2024", qr_code: "QR-A1B2C3D4E5F6",
+                quantity: 200, manufacture_date: new Date("2024-01-15"), expiry_date: new Date("2025-01-15"),
+                warehouse_id: warehouse.id, bin_location: "A-1-3", status: "active"
+            },
+            {
+                product_id: products[1].id, lot_number: "LOT-OIL-002-2024", qr_code: "QR-F6E5D4C3B2A1",
+                quantity: 100, manufacture_date: new Date("2024-03-01"), expiry_date: new Date("2025-06-01"),
+                warehouse_id: warehouse.id, bin_location: "B-2-1", status: "active"
+            }
+        ]);
+        console.log("Lot Tracking seeded.");
+
+        // ── Subscription Plans ──
+        await SubscriptionPlan.bulkCreate([
+            {
+                name: "الباقة الأساسية", tier: "basic", price_monthly: 100, price_yearly: 1000,
+                max_products: 50, max_warehouses: 1, commission_discount: 0,
+                features: JSON.stringify(["50 منتج", "مخزن واحد", "دعم بالبريد"])
+            },
+            {
+                name: "الباقة الذهبية", tier: "gold", price_monthly: 500, price_yearly: 5000,
+                max_products: 200, max_warehouses: 3, commission_discount: 10,
+                features: JSON.stringify(["200 منتج", "3 مخازن", "خصم 10% عمولة", "دعم أولوية"])
+            },
+            {
+                name: "الباقة البريميوم", tier: "premium", price_monthly: 2000, price_yearly: 20000,
+                max_products: 9999, max_warehouses: 10, commission_discount: 25,
+                features: JSON.stringify(["منتجات غير محدودة", "10 مخازن", "خصم 25% عمولة", "مدير حساب خاص"])
+            }
+        ]);
+        console.log("Subscription Plans seeded.");
+
+        // ── Loyalty Points ──
+        await LoyaltyPoint.bulkCreate([
+            { user_id: customer.id, points: 100, action: "order_complete", order_id: order1.id, description: "نقاط طلب #1" },
+            { user_id: customer.id, points: 50, action: "review", description: "نقاط تقييم منتج" },
+            { user_id: wholesaler.id, points: 200, action: "order_complete", order_id: order2.id, description: "نقاط طلب #2" }
+        ]);
+        console.log("Loyalty Points seeded.");
+
+        // ── Referrals ──
+        await Referral.create({
+            referrer_id: supplier.id, referred_id: retailer.id,
+            referral_code: "TL-2-REF001", reward_amount: 50, status: "completed", completed_at: new Date()
+        });
+        console.log("Referrals seeded.");
+
+        // ── Badges ──
+        const badges = await Badge.bulkCreate([
+            { name: "مورد موثوق", slug: "verified-supplier", description: "مورد تم التحقق من هويته وسجله التجاري", criteria: "KYC approved", icon: "shield-check" },
+            { name: "شحن سريع", slug: "fast-shipping", description: "متوسط تسليم أقل من 48 ساعة", criteria: "avg_delivery < 48h", icon: "truck-fast" },
+            { name: "الأكثر مبيعاً", slug: "top-seller", description: "أعلى 10% في المبيعات الشهرية", criteria: "top_10_percent_sales", icon: "trophy" },
+            { name: "تاجر نشط", slug: "active-trader", description: "أكثر من 50 طلب خلال 30 يوم", criteria: "orders > 50 in 30d", icon: "fire" }
+        ]);
+        await UserBadge.bulkCreate([
+            { user_id: supplier.id, badge_id: badges[0].id },
+            { user_id: supplier.id, badge_id: badges[1].id },
+            { user_id: supplier.id, badge_id: badges[2].id }
+        ]);
+        console.log("Badges seeded.");
+
+        // ── RMA ──
+        await Rma.create({
+            order_id: order1.id, buyer_id: customer.id, seller_id: supplier.id,
+            reason: "منتج تالف", description: "بعض العبوات وصلت مكسورة",
+            return_type: "partial", refund_amount: 100
+        });
+        console.log("RMA seeded.");
+
+        // ── Back Orders ──
+        const backOrderDate = new Date();
+        backOrderDate.setDate(backOrderDate.getDate() + 21);
+        await BackOrder.create({
+            buyer_id: retailer.id, product_id: products[2].id, quantity: 5,
+            expected_delivery: backOrderDate, notify_buyer: true
+        });
+        console.log("Back Orders seeded.");
+
+        // ── Vacation Mode ──
+        await VacationMode.create({
+            supplier_id: wholesaler.id, is_active: false,
+            message: "المتجر مفتوح", auto_reply: "مرحباً، كيف يمكننا مساعدتك؟"
+        });
+        console.log("Vacation Mode seeded.");
 
         console.log("\n✅ Seeding completed successfully!");
         console.log("──────────────────────────────────────");

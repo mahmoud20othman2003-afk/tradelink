@@ -13,6 +13,8 @@ import { Payment } from "./models/Payment";
 import { Shipment } from "./models/Shipment";
 import { Notification } from "./models/Notification";
 import { Withdrawal } from "./models/Withdrawal";
+import { Review } from "./models/Review";
+import { ShippingZone } from "./models/ShippingZone";
 import { initModels } from "./models/initModels";
 
 async function seed() {
@@ -306,6 +308,56 @@ async function seed() {
             { user_id: wholesaler.id, amount: 50.0, method: "vodafone_cash", status: "pending", transaction_ref: "WD-VOD-SEED003" }
         ]);
         console.log("Withdrawals seeded.");
+
+        // ── Reviews ──
+        await Review.bulkCreate([
+            { reviewer_id: customer.id, target_type: "supplier", target_id: supplier.id, rating: 5, comment: "مورد ممتاز، منتجات عالية الجودة وتسليم سريع" },
+            { reviewer_id: wholesaler.id, target_type: "supplier", target_id: supplier.id, rating: 4, comment: "تعامل جيد وأسعار تنافسية" },
+            { reviewer_id: retailer.id, target_type: "supplier", target_id: supplier.id, rating: 5, comment: "أفضل مورد تعاملت معه" },
+            { reviewer_id: customer.id, target_type: "product", target_id: products[0].id, rating: 5, comment: "أرز ممتاز وطعم رائع" },
+            { reviewer_id: wholesaler.id, target_type: "product", target_id: products[0].id, rating: 4, comment: "جودة عالية ومناسب للبيع بالتجزئة" },
+            { reviewer_id: retailer.id, target_type: "product", target_id: products[1].id, rating: 4, comment: "زيت نقي وسعر مناسب" },
+            { reviewer_id: customer.id, target_type: "product", target_id: products[2].id, rating: 5, comment: "موبايل رائع وأداء ممتاز" },
+            { reviewer_id: retailer.id, target_type: "product", target_id: products[3].id, rating: 3, comment: "جودة متوسطة ولكن السعر مناسب" },
+            { reviewer_id: customer.id, target_type: "supplier", target_id: wholesaler.id, rating: 4, comment: "تاجر جملة موثوق وأسعار جيدة" },
+            { reviewer_id: retailer.id, target_type: "supplier", target_id: wholesaler.id, rating: 5, comment: "سرعة في التسليم وتنوع في المنتجات" }
+        ]);
+        console.log("Reviews seeded.");
+
+        // ── Shipping Zones ──
+        await ShippingZone.bulkCreate([
+            {
+                zone_name: "القاهرة الكبرى",
+                governorates: "القاهرة,الجيزة,القليوبية",
+                base_cost: 25, cost_per_kg: 3,
+                estimated_days_min: 1, estimated_days_max: 2
+            },
+            {
+                zone_name: "الدلتا",
+                governorates: "الإسكندرية,الغربية,الدقهلية,المنوفية,الشرقية,البحيرة,كفر الشيخ,دمياط",
+                base_cost: 35, cost_per_kg: 4,
+                estimated_days_min: 2, estimated_days_max: 3
+            },
+            {
+                zone_name: "القناة",
+                governorates: "بورسعيد,الإسماعيلية,السويس",
+                base_cost: 35, cost_per_kg: 4,
+                estimated_days_min: 2, estimated_days_max: 3
+            },
+            {
+                zone_name: "صعيد مصر",
+                governorates: "الفيوم,بني سويف,المنيا,أسيوط,سوهاج,قنا,الأقصر,أسوان,الوادي الجديد",
+                base_cost: 45, cost_per_kg: 5,
+                estimated_days_min: 3, estimated_days_max: 5
+            },
+            {
+                zone_name: "المناطق الحدودية",
+                governorates: "شمال سيناء,جنوب سيناء,البحر الأحمر,مطروح",
+                base_cost: 60, cost_per_kg: 7,
+                estimated_days_min: 4, estimated_days_max: 7
+            }
+        ]);
+        console.log("Shipping Zones seeded.");
 
         console.log("\n✅ Seeding completed successfully!");
         console.log("──────────────────────────────────────");

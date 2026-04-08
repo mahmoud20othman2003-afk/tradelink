@@ -15,6 +15,8 @@ import { WalletTransaction } from "./WalletTransaction";
 import { Cart } from "./Cart";
 import { CartItem } from "./CartItem";
 import { Offer } from "./Offer";
+import { Review } from "./Review";
+import { ShippingZone } from "./ShippingZone";
 
 export function initModels() {
   // users & roles
@@ -90,5 +92,12 @@ export function initModels() {
   Product.hasMany(Offer, { foreignKey: "product_id", as: "offers" });
   Offer.belongsTo(User, { foreignKey: "user_id", as: "user" });
   User.hasMany(Offer, { foreignKey: "user_id", as: "offers" });
+
+  // reviews
+  Review.belongsTo(User, { foreignKey: "reviewer_id", as: "reviewer" });
+  User.hasMany(Review, { foreignKey: "reviewer_id", as: "reviews" });
+
+  // ShippingZone has no associations (standalone lookup table)
+  void ShippingZone;
 }
 

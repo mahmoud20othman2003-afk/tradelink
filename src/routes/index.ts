@@ -22,6 +22,7 @@ import { aiRouter } from "./aiRoutes";
 import { offerRouter } from "./offerRoutes";
 import { otpRouter } from "./otpRoutes";
 import { locationRouter } from "./locationRoutes";
+import { reviewRouter } from "./reviewRoutes";
 
 import * as userController from "../controllers/userController";
 import * as productController from "../controllers/productController";
@@ -52,6 +53,7 @@ apiRouter.use("/ai", aiRouter);
 apiRouter.use("/offers", offerRouter);
 apiRouter.use("/otp", otpRouter);
 apiRouter.use("/locations", locationRouter);
+apiRouter.use("/reviews", reviewRouter);
 
 // Dashboard & Unique Utility Routes
 apiRouter.get("/user-data", requireAuth, userController.getCurrentUserData);
